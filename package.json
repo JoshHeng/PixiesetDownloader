@@ -1,0 +1,23 @@
+{
+  "name": "pixiesetdownloader",
+  "version": "1.0.0",
+  "description": "Node.js app to download all images from a Pixieset site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoshHeng/PixiesetDownloader.git"
+  },
+  "author": "Josh Heng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JoshHeng/PixiesetDownloader/issues"
+  },
+  "homepage": "https://github.com/JoshHeng/PixiesetDownloader#readme",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0"
+  }
+}
