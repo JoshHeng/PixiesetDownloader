@@ -3,14 +3,16 @@ const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 
+if (!process.env.ALBUMS) console.error('Please add a list of which albums to fetch');
 if (!process.env.EXAMPLE_GET_URL) return console.error('Please provide an example GET url');
 const exampleGetUrl = new URL(process.env.EXAMPLE_GET_URL);
 if (!exampleGetUrl.searchParams.get('cuk') || !exampleGetUrl.searchParams.get('cid')) return console.error('Invalid GET url');
 if (!process.env.PHPSESSID_COOKIE) return console.error('Please add PHPSESSID cookie');
 
 /**
- * Get an album
+ * Get an album's images
  * @param {String} albumName 
+ * @returns {(Promise<Object[]>)} Images 
  */
 async function getAlbum(albumName) {
 	console.log(`Fetching ${albumName}`);
@@ -18,12 +20,13 @@ async function getAlbum(albumName) {
 	const response = await axios.get(`https://${exampleGetUrl.host}/client/loadphotos/?cuk=${exampleGetUrl.searchParams.get('cuk')}&gs=${albumName}&page=1&cid=${exampleGetUrl.searchParams.get('cid')}&all=1`, {
 		headers: { 'X-Requested-With': 'XMLHttpRequest', 'Cookie': `PHPSESSID=${process.env.PHPSESSID_COOKIE}` }
 	});
-	if (!response.data || response.data.status === 'error' || !response.data.content) {
+	if (!response.data || response.data.status === 'error') {
 		console.error(response.status);
 		console.error(response.data);
 		return console.error('An error occured. Please update the GET url');
 	}
 	if (!response.data.isLastPage) console.error('WARNING: More images in this album that were not fetched');
+	if (!response.data.content) return console.error('Could not find album');
 	
 	const content = JSON.parse(response.data.content);
 	console.log(`Found ${content.length} images`);
@@ -62,8 +65,10 @@ async function downloadAlbum(albumName, images) {
  * Main function
  */
 async function main() {
-	const album = await getAlbum('stgeorgeshallalbumii');
-	await downloadAlbum('stgeorgeshallalbumii', album);
+	for (const albumName of process.env.ALBUMS.split(',')) {
+		const images = await getAlbum(albumName);
+		await downloadAlbum(albumName, images);
+	}
 
 	console.log('Done!');
 }
